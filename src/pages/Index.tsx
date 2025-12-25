@@ -369,7 +369,7 @@ const Index = () => {
                         )}
                       </div>
 
-                      <div className="space-y-2 text-sm">
+                      <div className="space-y-3 text-sm">
                         <div>
                           <div className="flex justify-between mb-1">
                             <span>Здоровье:</span>
@@ -378,18 +378,25 @@ const Index = () => {
                           <Progress value={player.health} className="h-2" />
                         </div>
 
-                        <div className="flex justify-between">
-                          <span>Пульс:</span>
-                          <span className="font-bold text-red-600">
-                            {player.heartRate} уд/мин
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span>Давление:</span>
-                          <span className="font-bold">
-                            {player.pressure.systolic}/{player.pressure.diastolic}
-                          </span>
+                        <div className="bg-gradient-to-r from-red-50 to-pink-50 p-2 rounded-lg border border-red-200">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-1">
+                              <Icon name="Heart" size={16} className="text-red-500 animate-pulse-slow" />
+                              <span className="font-semibold text-red-700">Пульс:</span>
+                            </div>
+                            <span className="font-bold text-red-600">
+                              {player.heartRate} уд/мин
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1">
+                              <Icon name="Activity" size={16} className="text-blue-500" />
+                              <span className="font-semibold text-blue-700">Давление:</span>
+                            </div>
+                            <span className="font-bold text-blue-600">
+                              {player.pressure.systolic}/{player.pressure.diastolic}
+                            </span>
+                          </div>
                         </div>
 
                         <div className="flex justify-between">
