@@ -11,6 +11,7 @@ type Player = {
   name: string;
   position: number;
   pressure: { systolic: number; diastolic: number };
+  heartRate: number;
   health: number;
   color: string;
   skippedTurns: number;
@@ -27,30 +28,33 @@ const cellEffects: Record<number, CellEffect> = {
   3: {
     type: 'good',
     name: '🏃 Утренняя пробежка',
-    description: 'Легкая кардионагрузка улучшает кровообращение',
+    description: 'Легкая кардионагрузка улучшает кровообращение, пульс повышается умеренно',
     effect: (p) => ({
       ...p,
       pressure: { systolic: Math.max(110, p.pressure.systolic - 5), diastolic: Math.max(70, p.pressure.diastolic - 3) },
+      heartRate: Math.min(100, p.heartRate + 15),
       health: Math.min(100, p.health + 10),
     }),
   },
   7: {
     type: 'bad',
     name: '😰 Стрессовая ситуация',
-    description: 'Стресс повышает давление и ухудшает самочувствие',
+    description: 'Стресс повышает пульс, давление и ухудшает самочувствие',
     effect: (p) => ({
       ...p,
       pressure: { systolic: Math.min(180, p.pressure.systolic + 10), diastolic: Math.min(110, p.pressure.diastolic + 5) },
+      heartRate: Math.min(140, p.heartRate + 20),
       health: Math.max(0, p.health - 15),
     }),
   },
   12: {
     type: 'good',
     name: '🧘 Йога и растяжка',
-    description: 'Релаксация снижает давление',
+    description: 'Релаксация снижает пульс и давление',
     effect: (p) => ({
       ...p,
       pressure: { systolic: Math.max(110, p.pressure.systolic - 8), diastolic: Math.max(70, p.pressure.diastolic - 5) },
+      heartRate: Math.max(60, p.heartRate - 10),
       health: Math.min(100, p.health + 15),
     }),
   },
@@ -61,26 +65,29 @@ const cellEffects: Record<number, CellEffect> = {
     effect: (p) => ({
       ...p,
       pressure: { systolic: Math.min(180, p.pressure.systolic + 7), diastolic: Math.min(110, p.pressure.diastolic + 4) },
+      heartRate: Math.min(140, p.heartRate + 8),
       health: Math.max(0, p.health - 10),
     }),
   },
   20: {
     type: 'good',
     name: '🏋️ Силовая тренировка',
-    description: 'Регулярные тренировки укрепляют сердце',
+    description: 'Тренировки укрепляют сердце, временно повышают пульс',
     effect: (p) => ({
       ...p,
       pressure: { systolic: Math.max(110, p.pressure.systolic - 6), diastolic: Math.max(70, p.pressure.diastolic - 4) },
+      heartRate: Math.min(110, p.heartRate + 25),
       health: Math.min(100, p.health + 20),
     }),
   },
   24: {
     type: 'bad',
     name: '😴 Недосып',
-    description: 'Недостаток сна повышает давление. Пропуск хода!',
+    description: 'Недостаток сна повышает пульс и давление. Пропуск хода!',
     effect: (p) => ({
       ...p,
       pressure: { systolic: Math.min(180, p.pressure.systolic + 12), diastolic: Math.min(110, p.pressure.diastolic + 7) },
+      heartRate: Math.min(140, p.heartRate + 18),
       health: Math.max(0, p.health - 20),
       skippedTurns: 1,
     }),
@@ -88,10 +95,11 @@ const cellEffects: Record<number, CellEffect> = {
   28: {
     type: 'good',
     name: '🥗 Здоровое питание',
-    description: 'Правильное питание улучшает все показатели',
+    description: 'Правильное питание нормализует пульс и давление',
     effect: (p) => ({
       ...p,
       pressure: { systolic: Math.max(110, p.pressure.systolic - 7), diastolic: Math.max(70, p.pressure.diastolic - 5) },
+      heartRate: Math.max(60, p.heartRate - 5),
       health: Math.min(100, p.health + 18),
     }),
   },
@@ -100,10 +108,10 @@ const cellEffects: Record<number, CellEffect> = {
 const Index = () => {
   const [currentView, setCurrentView] = useState<'home' | 'game' | 'rules' | 'results'>('home');
   const [players, setPlayers] = useState<Player[]>([
-    { id: 1, name: 'Игрок 1', position: 0, pressure: { systolic: 120, diastolic: 80 }, health: 100, color: 'bg-blue-500', skippedTurns: 0 },
-    { id: 2, name: 'Игрок 2', position: 0, pressure: { systolic: 120, diastolic: 80 }, health: 100, color: 'bg-purple-500', skippedTurns: 0 },
-    { id: 3, name: 'Игрок 3', position: 0, pressure: { systolic: 120, diastolic: 80 }, health: 100, color: 'bg-orange-500', skippedTurns: 0 },
-    { id: 4, name: 'Игрок 4', position: 0, pressure: { systolic: 120, diastolic: 80 }, health: 100, color: 'bg-pink-500', skippedTurns: 0 },
+    { id: 1, name: 'Игрок 1', position: 0, pressure: { systolic: 120, diastolic: 80 }, heartRate: 72, health: 100, color: 'bg-blue-500', skippedTurns: 0 },
+    { id: 2, name: 'Игрок 2', position: 0, pressure: { systolic: 120, diastolic: 80 }, heartRate: 72, health: 100, color: 'bg-purple-500', skippedTurns: 0 },
+    { id: 3, name: 'Игрок 3', position: 0, pressure: { systolic: 120, diastolic: 80 }, heartRate: 72, health: 100, color: 'bg-orange-500', skippedTurns: 0 },
+    { id: 4, name: 'Игрок 4', position: 0, pressure: { systolic: 120, diastolic: 80 }, heartRate: 72, health: 100, color: 'bg-pink-500', skippedTurns: 0 },
   ]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [diceValue, setDiceValue] = useState<number | null>(null);
@@ -171,10 +179,10 @@ const Index = () => {
 
   const resetGame = () => {
     setPlayers([
-      { id: 1, name: 'Игрок 1', position: 0, pressure: { systolic: 120, diastolic: 80 }, health: 100, color: 'bg-blue-500', skippedTurns: 0 },
-      { id: 2, name: 'Игрок 2', position: 0, pressure: { systolic: 120, diastolic: 80 }, health: 100, color: 'bg-purple-500', skippedTurns: 0 },
-      { id: 3, name: 'Игрок 3', position: 0, pressure: { systolic: 120, diastolic: 80 }, health: 100, color: 'bg-orange-500', skippedTurns: 0 },
-      { id: 4, name: 'Игрок 4', position: 0, pressure: { systolic: 120, diastolic: 80 }, health: 100, color: 'bg-pink-500', skippedTurns: 0 },
+      { id: 1, name: 'Игрок 1', position: 0, pressure: { systolic: 120, diastolic: 80 }, heartRate: 72, health: 100, color: 'bg-blue-500', skippedTurns: 0 },
+      { id: 2, name: 'Игрок 2', position: 0, pressure: { systolic: 120, diastolic: 80 }, heartRate: 72, health: 100, color: 'bg-purple-500', skippedTurns: 0 },
+      { id: 3, name: 'Игрок 3', position: 0, pressure: { systolic: 120, diastolic: 80 }, heartRate: 72, health: 100, color: 'bg-orange-500', skippedTurns: 0 },
+      { id: 4, name: 'Игрок 4', position: 0, pressure: { systolic: 120, diastolic: 80 }, heartRate: 72, health: 100, color: 'bg-pink-500', skippedTurns: 0 },
     ]);
     setCurrentPlayerIndex(0);
     setDiceValue(null);
@@ -191,10 +199,10 @@ const Index = () => {
         <div className="container mx-auto px-4 py-16 max-w-6xl">
           <div className="text-center mb-12 animate-slide-in">
             <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-orange-600 bg-clip-text text-transparent">
-              Игра: Давление под контролем! 🎲
+              Игра: Здоровое сердце! 🎲💓
             </h1>
             <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-              Образовательная настольная игра о влиянии физической нагрузки на артериальное давление
+              Образовательная настольная игра о влиянии физической нагрузки на пульс и артериальное давление
             </p>
           </div>
 
@@ -219,7 +227,7 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">Отслеживайте давление и здоровье в режиме реального времени</p>
+                <p className="text-gray-600">Отслеживайте пульс, давление и здоровье в режиме реального времени</p>
               </CardContent>
             </Card>
 
@@ -231,7 +239,7 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">Узнайте, как образ жизни влияет на ваше давление</p>
+                <p className="text-gray-600">Узнайте, как образ жизни влияет на ваш пульс и давление</p>
               </CardContent>
             </Card>
           </div>
@@ -371,6 +379,13 @@ const Index = () => {
                         </div>
 
                         <div className="flex justify-between">
+                          <span>Пульс:</span>
+                          <span className="font-bold text-red-600">
+                            {player.heartRate} уд/мин
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between">
                           <span>Давление:</span>
                           <span className="font-bold">
                             {player.pressure.systolic}/{player.pressure.diastolic}
@@ -428,7 +443,7 @@ const Index = () => {
                   Цель игры
                 </h3>
                 <p className="text-gray-700">
-                  Первым достичь финишной клетки (30), управляя своим здоровьем и артериальным давлением через принятие решений о физической активности и образе жизни.
+                  Первым достичь финишной клетки (30), управляя своим здоровьем, пульсом и артериальным давлением через принятие решений о физической активности и образе жизни.
                 </p>
               </div>
 
@@ -472,6 +487,7 @@ const Index = () => {
                   Показатели здоровья
                 </h3>
                 <ul className="space-y-2 text-gray-700">
+                  <li>• <strong>Пульс:</strong> норма 60-80 уд/мин (меняется при физ. нагрузках)</li>
                   <li>• <strong>Артериальное давление:</strong> норма 120/80 мм рт.ст.</li>
                   <li>• <strong>Здоровье:</strong> общее состояние игрока (0-100%)</li>
                   <li>• Следите за изменениями в реальном времени!</li>
@@ -480,7 +496,7 @@ const Index = () => {
 
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-900">
-                  <strong>💡 Образовательная цель:</strong> Игра показывает, как физическая активность, питание и образ жизни влияют на артериальное давление и общее состояние здоровья.
+                  <strong>💡 Образовательная цель:</strong> Игра показывает, как физическая активность, питание и образ жизни влияют на пульс, артериальное давление и общее состояние здоровья.
                 </p>
               </div>
             </CardContent>
@@ -498,7 +514,13 @@ const Index = () => {
               <div className={`w-24 h-24 rounded-full ${winner.color} mx-auto animate-bounce-subtle`} />
               <h2 className="text-3xl font-bold">{winner.name}</h2>
 
-              <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+              <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+                <div className="p-4 bg-red-50 rounded-lg">
+                  <p className="text-sm text-gray-600">Финальный пульс</p>
+                  <p className="text-2xl font-bold text-red-700">
+                    {winner.heartRate} уд/мин
+                  </p>
+                </div>
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-gray-600">Финальное давление</p>
                   <p className="text-2xl font-bold text-blue-700">
@@ -524,8 +546,9 @@ const Index = () => {
                           <span className="font-bold">{player.name}</span>
                         </div>
                         <div className="text-sm text-gray-600">
-                          <span>Давление: {player.pressure.systolic}/{player.pressure.diastolic}</span>
-                          <span className="ml-4">Здоровье: {player.health}%</span>
+                          <span>Пульс: {player.heartRate}</span>
+                          <span className="ml-3">Давление: {player.pressure.systolic}/{player.pressure.diastolic}</span>
+                          <span className="ml-3">Здоровье: {player.health}%</span>
                         </div>
                       </div>
                     ))}
