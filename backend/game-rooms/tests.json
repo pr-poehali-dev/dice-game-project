@@ -1,23 +1,30 @@
 {
   "tests": [
     {
-      "name": "Создание новой комнаты",
+      "name": "Create new game room",
       "method": "POST",
-      "path": "/?action=create",
+      "path": "/",
+      "body": {
+        "action": "create"
+      },
       "expectedStatus": 200,
       "expectedBody": {
-        "roomId": "string",
-        "createdAt": "string"
+        "room_id": "string",
+        "status": "waiting"
       },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Получение информации о несуществующей комнате",
+      "name": "Get room state",
       "method": "GET",
-      "path": "/?roomId=INVALID123",
-      "expectedStatus": 404,
+      "path": "/?room_id=TVFVA5EJ",
+      "expectedStatus": 200,
       "expectedBody": {
-        "error": "string"
+        "room": {
+          "room_id": "string",
+          "status": "string"
+        },
+        "players": []
       },
       "bodyMatcher": "partial"
     }

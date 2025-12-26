@@ -8,21 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
+import { createRoom, joinRoom as joinRoomAPI, getRoomState, updateGameState, type OnlinePlayer, type RoomState } from '@/utils/onlineGame';
 
-const API_URL = 'https://functions.poehali.dev/4cdc3b03-605a-4951-8e2c-f540f50fc78f';
-
-type Player = {
-  id: number;
-  player_name: string;
-  player_color: string;
-  position: number;
-  health: number;
-  heart_rate: number;
-  pressure_systolic: number;
-  pressure_diastolic: number;
-  skipped_turns: number;
-  is_ready: boolean;
-};
+type Player = OnlinePlayer;
 
 type Room = {
   room_id: string;
@@ -56,15 +44,12 @@ const OnlineGame = () => {
     }
   }, [room, view]);
 
-  const createRoom = async () => {
+  const handleCreateRoom = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}?action=create`, {
-        method: 'POST',
-      });
-      const data = await response.json();
+      const data = await createRoom();
       
-      const newRoomId = data.roomId;
+      const newRoomId = data.room_id;
       const roomUrl = `${window.location.origin}/online/${newRoomId}`;
       
       await navigator.clipboard.writeText(roomUrl);
@@ -79,36 +64,27 @@ const OnlineGame = () => {
     }
   };
 
-  const joinRoom = async () => {
+  const handleJoinRoom = async () => {
     if (!playerName.trim()) {
       toast.error('Введите ваше имя');
       return;
     }
     
+    if (!roomId) {
+      toast.error('Код комнаты не указан');
+      return;
+    }
+    
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}?action=join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          roomId,
-          playerName: playerName.trim(),
-        }),
-      });
+      const data = await joinRoomAPI(roomId, playerName.trim());
       
-      const data = await response.json();
-      
-      if (!response.ok) {
-        toast.error(data.error || 'Ошибка подключения');
-        return;
-      }
-      
-      setCurrentPlayerId(data.playerId);
+      setCurrentPlayerId(data.player_id);
       setView('lobby');
       await loadRoom();
       toast.success('Вы присоединились к игре!');
-    } catch (error) {
-      toast.error('Ошибка подключения к комнате');
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка подключения к комнате');
       console.error(error);
     } finally {
       setLoading(false);
@@ -116,17 +92,16 @@ const OnlineGame = () => {
   };
 
   const loadRoom = async () => {
+    if (!roomId) return;
+    
     try {
-      const response = await fetch(`${API_URL}?roomId=${roomId}`);
-      const data = await response.json();
+      const data = await getRoomState(roomId);
       
-      if (response.ok) {
-        setRoom(data.room);
-        setPlayers(data.players);
-        
-        if (data.room.status === 'playing' && view === 'lobby') {
-          setView('game');
-        }
+      setRoom(data.room);
+      setPlayers(data.players);
+      
+      if (data.room.status === 'playing' && view === 'lobby') {
+        setView('game');
       }
     } catch (error) {
       console.error('Error loading room:', error);
@@ -145,12 +120,10 @@ const OnlineGame = () => {
       return;
     }
     
+    if (!roomId) return;
+    
     try {
-      await fetch(`${API_URL}?action=start`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomId }),
-      });
+      await updateGameState(roomId, 0, {}, 0, true);
       
       setView('game');
       toast.success('Игра началась!');
@@ -180,11 +153,11 @@ const OnlineGame = () => {
                     value={playerName}
                     onChange={(e) => setPlayerName(e.target.value)}
                     maxLength={20}
-                    onKeyDown={(e) => e.key === 'Enter' && joinRoom()}
+                    onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
                   />
                 </div>
                 <Button 
-                  onClick={joinRoom} 
+                  onClick={handleJoinRoom} 
                   className="w-full" 
                   disabled={loading || !playerName.trim()}
                 >
@@ -192,7 +165,7 @@ const OnlineGame = () => {
                 </Button>
               </>
             ) : (
-              <Button onClick={createRoom} className="w-full" disabled={loading}>
+              <Button onClick={handleCreateRoom} className="w-full" disabled={loading}>
                 {loading ? 'Создание...' : 'Создать новую комнату'}
               </Button>
             )}

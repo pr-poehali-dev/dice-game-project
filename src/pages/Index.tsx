@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { Progress } from '@/components/ui/progress';
 
@@ -106,6 +109,7 @@ const cellEffects: Record<number, CellEffect> = {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [currentView, setCurrentView] = useState<'home' | 'game' | 'rules' | 'results'>('home');
   const [players, setPlayers] = useState<Player[]>([
     { id: 1, name: 'Игрок 1', position: 0, pressure: { systolic: 120, diastolic: 80 }, heartRate: 72, health: 100, color: 'bg-blue-500', skippedTurns: 0 },
@@ -244,14 +248,25 @@ const Index = () => {
             </Card>
           </div>
 
-          <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => setCurrentView('game')} className="text-lg px-8 animate-bounce-subtle">
-              <Icon name="Play" size={20} className="mr-2" />
-              Начать игру
-            </Button>
-            <Button size="lg" variant="outline" onClick={() => setCurrentView('rules')} className="text-lg px-8">
-              <Icon name="BookOpen" size={20} className="mr-2" />
-              Правила
+          <div className="flex flex-col gap-4 items-center">
+            <div className="flex gap-4">
+              <Button size="lg" onClick={() => setCurrentView('game')} className="text-lg px-8 animate-bounce-subtle">
+                <Icon name="Play" size={20} className="mr-2" />
+                Локальная игра
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => setCurrentView('rules')} className="text-lg px-8">
+                <Icon name="BookOpen" size={20} className="mr-2" />
+                Правила
+              </Button>
+            </div>
+            <Button 
+              size="lg" 
+              variant="default" 
+              onClick={() => navigate('/online')} 
+              className="text-lg px-8 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <Icon name="Wifi" size={20} className="mr-2" />
+              Играть онлайн
             </Button>
           </div>
         </div>
