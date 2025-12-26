@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "Создание новой комнаты",
+      "method": "POST",
+      "path": "/?action=create",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "roomId": "string",
+        "createdAt": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Получение информации о несуществующей комнате",
+      "method": "GET",
+      "path": "/?roomId=INVALID123",
+      "expectedStatus": 404,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
